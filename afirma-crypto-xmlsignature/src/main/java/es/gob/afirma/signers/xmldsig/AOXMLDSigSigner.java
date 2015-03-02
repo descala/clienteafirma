@@ -2,7 +2,7 @@
 /* Copyright (C) 2011 [Gobierno de Espana]
  * This file is part of "Cliente @Firma".
  * "Cliente @Firma" is free software; you can redistribute it and/or modify it under the terms of:
- *   - the GNU General Public License as published by the Free Software Foundation;
+ *   - the GNU General Public License as published by the Free Software Foundation,
  *     either version 2 of the License, or (at your option) any later version.
  *   - or The European Software License; either version 1.1 or (at your option) any later version.
  * Date: 11/01/11
@@ -117,6 +117,8 @@ public final class AOXMLDSigSigner implements AOSigner {
 
     /** Algoritmo de huella digital por defecto para las referencias XML. */
     private static final String DIGEST_METHOD = DigestMethod.SHA1;
+
+    private static final String SIGNATURE_VALUE = "SignatureValue"; //$NON-NLS-1$
 
     private String algo;
     private Document doc;
@@ -327,7 +329,9 @@ public final class AOXMLDSigSigner implements AOSigner {
 
         final String algoUri = XMLConstants.SIGN_ALGOS_URI.get(algorithm);
         if (algoUri == null) {
-            throw new UnsupportedOperationException("Los formatos de firma XML no soportan el algoritmo de firma '" + algorithm + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new UnsupportedOperationException(
+        		"La URI de definicion del algoritmo de firma no puede ser nula" //$NON-NLS-1$
+    		);
         }
 
         final Properties extraParams = xParams != null ? xParams : new Properties();
@@ -580,7 +584,7 @@ public final class AOXMLDSigSigner implements AOSigner {
                     digestValue = MessageDigest.getInstance("SHA1").digest(data); //$NON-NLS-1$
                 }
                 catch (final Exception e) {
-                    throw new AOException("No se ha podido obtener el SHA1 de los datos proporcionados", e); //$NON-NLS-1$
+                    throw new AOException("No se ha podido obtener el SHA1 de los datos proporcionados: " + e, e); //$NON-NLS-1$
                 }
             }
 
@@ -593,7 +597,7 @@ public final class AOXMLDSigSigner implements AOSigner {
                 docFile = dbf.newDocumentBuilder().newDocument();
             }
             catch (final Exception e) {
-                throw new AOException("No se ha podido crear el documento XML contenedor", e); //$NON-NLS-1$
+                throw new AOException("No se ha podido crear el documento XML contenedor: " + e, e); //$NON-NLS-1$
             }
             dataElement = docFile.createElement(DETACHED_CONTENT_ELEMENT_NAME);
 
@@ -754,7 +758,9 @@ public final class AOXMLDSigSigner implements AOSigner {
                     );
                 }
                 catch (final Exception e) {
-                    LOGGER.severe("No ha sido posible anadir la referencia a la hoja de estilo del XML, esta no se firmara: " + e); //$NON-NLS-1$
+                    LOGGER.severe(
+                		"No ha sido posible anadir la referencia a la hoja de estilo del XML en la firma Externally Detached, esta no se firmara: " + e //$NON-NLS-1$
+            		);
                 }
             }
 
@@ -805,7 +811,9 @@ public final class AOXMLDSigSigner implements AOSigner {
                     );
                 }
                 catch (final Exception e) {
-                    LOGGER.severe("No ha sido posible anadir la referencia a la hoja de estilo del XML, esta no se firmara: " + e); //$NON-NLS-1$
+                    LOGGER.severe(
+                		"No ha sido posible anadir la referencia a la hoja de estilo del XML en la firma Detached Implicita, esta no se firmara: " + e //$NON-NLS-1$
+                    );
                 }
             }
 
@@ -898,7 +906,9 @@ public final class AOXMLDSigSigner implements AOSigner {
                         );
                     }
                     catch (final Exception e) {
-                        LOGGER.severe("No ha sido posible anadir la referencia a la hoja de estilo del XML, esta no se firmara: " + e); //$NON-NLS-1$
+                        LOGGER.severe(
+                    		"No ha sido posible anadir la referencia a la hoja de estilo remota del XML en la firma Externally Detached, esta no se firmara: " + e //$NON-NLS-1$
+                        );
                     }
                 }
                 else {
@@ -950,7 +960,9 @@ public final class AOXMLDSigSigner implements AOSigner {
             		);
                 }
                 catch (final Exception e) {
-                    LOGGER.severe("No ha sido posible anadir la referencia a la hoja de estilo del XML, esta no se firmara: " + e); //$NON-NLS-1$
+                    LOGGER.severe(
+                		"No ha sido posible anadir la referencia a la hoja de estilo remota del XML en la firma Enveloped, esta no se firmara: " + e //$NON-NLS-1$
+            		);
                 }
             }
 
@@ -1057,7 +1069,9 @@ public final class AOXMLDSigSigner implements AOSigner {
             signature.sign(signContext);
         }
         catch (final NoSuchAlgorithmException e) {
-            throw new UnsupportedOperationException("Los formatos de firma XML no soportan el algoritmo de firma '" + algorithm + "'", e); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new UnsupportedOperationException(
+        		"Hay al menos un algoritmo no soportado: " + e, e //$NON-NLS-1$
+    		);
         }
         catch (final Exception e) {
             throw new AOException("Error al generar la firma XMLdSig", e); //$NON-NLS-1$
@@ -1270,7 +1284,9 @@ public final class AOXMLDSigSigner implements AOSigner {
 
         final String algoUri = XMLConstants.SIGN_ALGOS_URI.get(algorithm);
         if (algoUri == null) {
-            throw new UnsupportedOperationException("Los formatos de firma XML no soportan el algoritmo de firma '" + algorithm + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new UnsupportedOperationException(
+        		"La URI de definicion del algoritmo de firma no puede ser nula" //$NON-NLS-1$
+    		);
         }
 
         final Properties extraParams = xParams != null ? xParams : new Properties();
@@ -1302,10 +1318,10 @@ public final class AOXMLDSigSigner implements AOSigner {
             }
         }
         catch (final ParserConfigurationException pcex) {
-            throw new AOException("Formato de documento de firmas incorrecto", pcex); //$NON-NLS-1$
+            throw new AOException("Error en el amalizador XML: " + pcex, pcex); //$NON-NLS-1$
         }
         catch (final SAXException saxex) {
-            throw new AOException("Formato de documento de firmas incorrecto", saxex); //$NON-NLS-1$
+            throw new AOException("Formato de documento de firmas (XML firmado de entrada) incorrecto: " + saxex, saxex); //$NON-NLS-1$
         }
         catch (final IOException ioex) {
             throw new AOException("Error al leer el documento de firmas", ioex); //$NON-NLS-1$
@@ -1461,7 +1477,9 @@ public final class AOXMLDSigSigner implements AOSigner {
 
         }
         catch (final NoSuchAlgorithmException e) {
-            throw new UnsupportedOperationException("Los formatos de firma XML no soportan el algoritmo de firma '" + algorithm + "'", e); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new UnsupportedOperationException(
+        		"Hay al menos un algoritmo no soportado: " + e, e //$NON-NLS-1$
+    		);
         }
         catch (final Exception e) {
             throw new AOException("Error al generar la cofirma XMLdSig", e); //$NON-NLS-1$
@@ -1551,16 +1569,16 @@ public final class AOXMLDSigSigner implements AOSigner {
             docData.appendChild(rootData);
         }
         catch (final ParserConfigurationException pcex) {
-            throw new AOException("Formato de documento de firmas incorrecto", pcex); //$NON-NLS-1$
+            throw new AOException("Error en el analizador XML: " + pcex, pcex); //$NON-NLS-1$
         }
         catch (final SAXException saxex) {
-            throw new AOException("Formato de documento de firmas incorrecto", saxex); //$NON-NLS-1$
+            throw new AOException("Formato de documento de firmas (XML firmado de entrada) incorrecto: " + saxex, saxex); //$NON-NLS-1$
         }
         catch (final IOException ioex) {
-            throw new AOException("Error al leer el documento de firmas", ioex); //$NON-NLS-1$
+            throw new AOException("Error al leer el documento de firmas: " + ioex, ioex); //$NON-NLS-1$
         }
         catch (final IllegalArgumentException iaex) {
-            throw new AOException("Parametro de entrada incorrecto", iaex); //$NON-NLS-1$
+            throw new AOException("Parametro de entrada incorrecto: " + iaex, iaex); //$NON-NLS-1$
         }
 
         // convierte el documento de firmas en un InputStream
@@ -1634,7 +1652,9 @@ public final class AOXMLDSigSigner implements AOSigner {
 
         final String algoUri = XMLConstants.SIGN_ALGOS_URI.get(algorithm);
         if (algoUri == null) {
-            throw new UnsupportedOperationException("Los formatos de firma XML no soportan el algoritmo de firma '" + algorithm + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new UnsupportedOperationException(
+        		"La URI de definicion del algoritmo de firma no puede ser nula" //$NON-NLS-1$
+    		);
         }
 
         final Properties extraParams = xParams != null ? xParams : new Properties();
@@ -1743,13 +1763,13 @@ public final class AOXMLDSigSigner implements AOSigner {
         }
 
         // y crea sus contrafirmas
-        try {
-            for (final Element node : nodes) {
-                this.cs(node, key, certChain, onlySignningCert, refsDigestMethod, canonicalizationAlgorithm, xmlSignaturePrefix);
-            }
-        }
-        catch (final Exception e) {
-            throw new AOException("No se ha podido realizar la contrafirma: " + e, e); //$NON-NLS-1$
+        for (final Element node : nodes) {
+	        try {
+	                this.cs(node, key, certChain, onlySignningCert, refsDigestMethod, canonicalizationAlgorithm, xmlSignaturePrefix);
+	        }
+	        catch (final Exception e) {
+	            throw new AOException("No se ha podido realizar la contrafirma del nodo '" + (node != null ? node.getNodeName() : "nulo") + "': " + e, e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	        }
         }
     }
 
@@ -1779,7 +1799,7 @@ public final class AOXMLDSigSigner implements AOSigner {
         final String signatureValueID[] = new String[signatures.getLength()];
         for (int i = 0; i < signatures.getLength(); i++) {
         	signatureValueID[i] = ((Element) signatures.item(i)).
-        		getElementsByTagNameNS(XMLConstants.DSIGNNS, "SignatureValue").item(0). //$NON-NLS-1$
+        		getElementsByTagNameNS(XMLConstants.DSIGNNS, SIGNATURE_VALUE).item(0).
         		getAttributes().getNamedItem("Id").getNodeValue(); //$NON-NLS-1$
         }
 
@@ -1846,7 +1866,7 @@ public final class AOXMLDSigSigner implements AOSigner {
         final String signatureValuesID[] = new String[signatures.getLength()];
         for (int i = 0; i < signatures.getLength(); i++) {
         	signatureValuesID[i] = ((Element) signatures.item(i)).
-        		getElementsByTagNameNS(XMLConstants.DSIGNNS, "SignatureValue").item(0). //$NON-NLS-1$
+        		getElementsByTagNameNS(XMLConstants.DSIGNNS, SIGNATURE_VALUE).item(0).
         		getAttributes().getNamedItem("Id").getNodeValue(); //$NON-NLS-1$
         }
 
@@ -1974,7 +1994,7 @@ public final class AOXMLDSigSigner implements AOSigner {
                     final String xmlSignaturePrefix) throws AOException {
 
         // obtiene el nodo SignatureValue
-        final Element signatureValue = (Element) signature.getElementsByTagNameNS(XMLConstants.DSIGNNS, "SignatureValue").item(0); //$NON-NLS-1$
+        final Element signatureValue = (Element) signature.getElementsByTagNameNS(XMLConstants.DSIGNNS, SIGNATURE_VALUE).item(0);
 
         // crea la referencia a la firma que se contrafirma
         final List<Reference> referenceList = new ArrayList<Reference>();
@@ -1997,7 +2017,7 @@ public final class AOXMLDSigSigner implements AOSigner {
             referenceList.add(fac.newReference("#" + signatureValue.getAttribute("Id"), digestMethod, transformList, CSURI, referenceId)); //$NON-NLS-1$ //$NON-NLS-2$
         }
         catch (final Exception e) {
-            throw new AOException("No se ha podido realizar la contrafirma: " + e, e); //$NON-NLS-1$
+            throw new AOException("No se ha podido anadir la transformacion de canonizacion en la contrafirma: " + e, e); //$NON-NLS-1$
         }
 
         // definicion de identificadores
@@ -2058,7 +2078,9 @@ public final class AOXMLDSigSigner implements AOSigner {
             sign.sign(signContext);
         }
         catch (final NoSuchAlgorithmException e) {
-            throw new UnsupportedOperationException("Los formatos de firma XML no soportan el algoritmo de firma '" + this.algo + "': " + e, e); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new UnsupportedOperationException(
+        		"Hay al menos un algoritmo no soportado: " + e, e //$NON-NLS-1$
+        	);
         }
         catch (final Exception e) {
             throw new AOException("No se ha podido realizar la contrafirma: " + e, e); //$NON-NLS-1$
@@ -2100,7 +2122,7 @@ public final class AOXMLDSigSigner implements AOSigner {
 
         // Obtenemos todas las firmas y los signature value
         final NodeList signatures = root.getElementsByTagName(completePrefix + SIGNATURE_STR);
-        final NodeList signatureValues = root.getElementsByTagName(completePrefix + "SignatureValue"); //$NON-NLS-1$
+        final NodeList signatureValues = root.getElementsByTagName(completePrefix + SIGNATURE_VALUE);
 
         final int numSignatures = signatures.getLength();
         final String[] arrayIds = new String[numSignatures];
