@@ -44,6 +44,7 @@
 		<module>afirma-ui-core-jse-keystores</module>
 		<module>afirma-crypto-pdf</module>
 		<module>afirma-core-massive</module>
+		<module>afirma-commandline</module>
 	</modules>
 	
 	<repositories>
